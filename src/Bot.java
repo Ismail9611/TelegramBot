@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
@@ -63,6 +64,7 @@ public class Bot extends TelegramLongPollingBot {
     private void messageProcess(Message message) {
         String sms = message.getText();
         if (sms != null) {
+            logToFile("Got command" + "(" + new Date().toString() + "): " + sms);
             switch (sms) {
                 case "/help":
                     showAllCommands(message);
@@ -74,7 +76,7 @@ public class Bot extends TelegramLongPollingBot {
                     //stop
                     break;
                 default:
-                    sendMsg(message, "Sorry, not found command like: " + message.getText() + ". For help \"/help\"");
+                    sendMsg(message, "Sorry, not found command like \'" + message.getText() + "\'. For help \"/help\"");
                     break;
             }
 
