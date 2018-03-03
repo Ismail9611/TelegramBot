@@ -1,10 +1,12 @@
 import org.apache.commons.io.FileUtils;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
+import org.telegram.telegrambots.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,7 +20,7 @@ public class Bot extends TelegramLongPollingBot {
 
     private static final Logger LOG = Logger.getLogger(Bot.class.getName());
     private Properties properties = new Properties();
-    private String[] allCommands = {"/start", "/help", "/stop"};
+    private String[] allCommands = {"/start", "/help", "/stop", "/get_screenshot"};
 
     Bot() throws FileNotFoundException {
         try {
@@ -38,14 +40,24 @@ public class Bot extends TelegramLongPollingBot {
 
     private void sendMsg(Message message, String s) {
         SendMessage sendMessage = new SendMessage();
-//        sendMessage.enableMarkdown(true);
         sendMessage.setChatId(message.getChatId().toString());
-        System.out.println(message.getChatId().toString());
-//        sendMessage.setReplyToMessageId(message.getMessageId());
         sendMessage.setText(s);
         try {
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void sendScreen(Message message){
+        ScreenShotTool.takeScreenShot();
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(message.getChatId().toString());
+        sendPhoto.setNewPhoto(new File("resources/screenshots/screen.png"));
+        try {
+            sendPhoto(sendPhoto);
+        } catch (TelegramApiException e){
             e.printStackTrace();
         }
 
@@ -66,11 +78,14 @@ public class Bot extends TelegramLongPollingBot {
         if (sms != null) {
             logToFile("Got command" + "(" + new Date().toString() + "): " + sms);
             switch (sms) {
+                case "/start":
+                    sendMsg(message, "Hi,\"/help\" for all commands ");
+                    break;
                 case "/help":
                     showAllCommands(message);
                     break;
-                case "/start":
-                    sendMsg(message, "Hi,\"/help\" for all commands ");
+                case "/get_screenshot":
+                    sendScreen(message);
                     break;
                 case "/stop":
                     //stop
@@ -83,6 +98,7 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+
     private void showAllCommands(Message message) {
         sendMsg(message, "All possible commands");
         for (String str : allCommands) {
@@ -90,14 +106,13 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
-
     @Override
     public String getBotUsername() {
-        return properties.getProperty("bot_username");
+        return properties.getProperty("bot_username", "point_ht_bot");
     }
 
     @Override
     public String getBotToken() {
-        return properties.getProperty("bot_token");
+        return properties.getProperty("bot_token", "495638351:AAEpU1TjHCVDgyJEqn3v6ZvCkePQ3Tsm-Fw");
     }
 }
