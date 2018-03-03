@@ -8,7 +8,7 @@ class ScreenShotTool {
 
     static void takeScreenShot() {
         try {
-             ImageIO.write(grabScreen(), "png", new File("resources/screenshots/screen.png"));
+            ImageIO.write(grabScreen(), "png", new File("resources/screenshots/screen.png"));
         } catch (Exception e) {
             e.printStackTrace();
         }

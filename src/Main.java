@@ -1,15 +1,12 @@
+import logging.LoggingUtil;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-
 import java.io.FileNotFoundException;
-import java.util.logging.Logger;
+import java.util.Date;
 
 
 public class Main {
-
-    private static final Logger LOG = Logger.getLogger(Main.class.getName());
-
 
     public static void main(String[] args) {
         ApiContextInitializer.init();
@@ -17,7 +14,7 @@ public class Main {
 
         try {
             telegramBotsApi.registerBot(new Bot());
-            Bot.logToFile("Bot initialized");
+            LoggingUtil.logToFile("Bot initialized(" + new Date() + ")");
         } catch (TelegramApiException | FileNotFoundException ex) {
             ex.printStackTrace();
         }

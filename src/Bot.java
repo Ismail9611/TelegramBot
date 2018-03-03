@@ -1,3 +1,4 @@
+import logging.LoggingUtil;
 import org.apache.commons.io.FileUtils;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
@@ -18,14 +19,14 @@ import java.util.logging.Logger;
 
 public class Bot extends TelegramLongPollingBot {
 
-    private static final Logger LOG = Logger.getLogger(Bot.class.getName());
+
     private Properties properties = new Properties();
     private String[] allCommands = {"/start", "/help", "/stop", "/get_screenshot"};
 
     Bot() throws FileNotFoundException {
         try {
             properties.load(new FileInputStream("resources/bot_settings.properties"));
-            logToFile("Loaded properties: " + properties.toString());
+            LoggingUtil.logToFile("Loaded properties: " + properties.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -63,20 +64,10 @@ public class Bot extends TelegramLongPollingBot {
 
     }
 
-    static void logToFile(String str) {
-        try {
-            str = str + "\n";
-            File filename = new File("resources/logs.txt");
-            FileUtils.writeStringToFile(filename, str, true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void messageProcess(Message message) {
         String sms = message.getText();
         if (sms != null) {
-            logToFile("Got command" + "(" + new Date().toString() + "): " + sms);
+            LoggingUtil.logToFile("Got command" + "(" + new Date().toString() + "): " + sms);
             switch (sms) {
                 case "/start":
                     sendMsg(message, "Hi,\"/help\" for all commands ");
