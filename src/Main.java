@@ -15,6 +15,7 @@ public class Main {
         try {
             telegramBotsApi.registerBot(new Bot());
             LoggingUtil.logToFile("Bot initialized(" + new Date() + ")");
+            System.out.println("Bot started");
         } catch (TelegramApiException | FileNotFoundException ex) {
             ex.printStackTrace();
         }

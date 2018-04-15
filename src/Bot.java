@@ -1,29 +1,29 @@
+import dao.UserDao;
+import dao.UserDaoImpl;
+import entity.User;
 import logging.LoggingUtil;
-import org.apache.commons.io.FileUtils;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.methods.send.SendPhoto;
-import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-
-import java.awt.image.BufferedImage;
+import utils.ScreenShotTool;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 public class Bot extends TelegramLongPollingBot {
 
 
     private Properties properties = new Properties();
-    private String[] allCommands = {"/start", "/help", "/stop", "/get_screenshot"};
+    private static String[] allCommands = {"/start", "/help", "/stop", "/get_screenshot", "/login", "/logout"};
+    private UserDao userDao = new UserDaoImpl();
 
-    Bot() throws FileNotFoundException {
+
+    public Bot() throws FileNotFoundException {
         try {
             properties.load(new FileInputStream("resources/bot_settings.properties"));
             LoggingUtil.logToFile("Loaded properties: " + properties.toString());
@@ -34,14 +34,12 @@ public class Bot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        Message message = update.getMessage();
-        messageProcess(message);
-
+        messageProcess(update);
     }
 
-    private void sendMsg(Message message, String s) {
+    private void sendMsg(Update update, String s) {
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(message.getChatId().toString());
+        sendMessage.setChatId(update.getMessage().getChatId().toString());
         sendMessage.setText(s);
         try {
             sendMessage(sendMessage);
@@ -51,10 +49,10 @@ public class Bot extends TelegramLongPollingBot {
 
     }
 
-    private void sendScreen(Message message){
+    private void sendScreen(Update update){
         ScreenShotTool.takeScreenShot();
         SendPhoto sendPhoto = new SendPhoto();
-        sendPhoto.setChatId(message.getChatId().toString());
+        sendPhoto.setChatId(update.getMessage().getChatId().toString());
         sendPhoto.setNewPhoto(new File("resources/screenshots/screen.png"));
         try {
             sendPhoto(sendPhoto);
@@ -64,37 +62,40 @@ public class Bot extends TelegramLongPollingBot {
 
     }
 
-    private void messageProcess(Message message) {
-        String sms = message.getText();
+    private void messageProcess(Update update) {
+        String sms = update.getMessage().getText();
         if (sms != null) {
             LoggingUtil.logToFile("Got command" + "(" + new Date().toString() + "): " + sms);
             switch (sms) {
                 case "/start":
-                    sendMsg(message, "Hi,\"/help\" for all commands ");
+                    sendMsg(update, "Hi,\"/help\" for all commands ");
                     break;
                 case "/help":
-                    showAllCommands(message);
+                    showAllCommands(update);
                     break;
                 case "/get_screenshot":
-                    sendScreen(message);
+                    sendScreen(update);
                     break;
                 case "/stop":
-                    //stop
+                    break;
+                case "/login":
+
                     break;
                 default:
-                    sendMsg(message, "Sorry, not found command like \'" + message.getText() + "\'. For help \"/help\"");
+                    sendMsg(update, "Sorry, not found command like \'" + update.getMessage().getText() + "\'. For help \"/help\"");
                     break;
             }
-
         }
     }
 
 
-    private void showAllCommands(Message message) {
-        sendMsg(message, "All possible commands");
+    private void showAllCommands(Update update) {
+        sendMsg(update, "All possible commands");
+        StringBuilder commands = new StringBuilder();
         for (String str : allCommands) {
-            sendMsg(message, str);
+            commands.append(str + "  ");
         }
+        sendMsg(update, commands.toString());
     }
 
     @Override

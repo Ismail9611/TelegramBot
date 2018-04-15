@@ -1,12 +1,14 @@
+package utils;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
 
-class ScreenShotTool {
+public class ScreenShotTool {
 
-    static void takeScreenShot() {
+    public static void takeScreenShot() {
         try {
             ImageIO.write(grabScreen(), "png", new File("resources/screenshots/screen.png"));
         } catch (Exception e) {
@@ -15,13 +17,13 @@ class ScreenShotTool {
     }
 
 
-    private static BufferedImage grabScreen() {
+    private static BufferedImage grabScreen() throws Exception {
         try {
             return new Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
         } catch (SecurityException | AWTException e) {
             e.printStackTrace();
         }
-        return null;
+        throw new Exception();
     }
 
 }
